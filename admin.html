@@ -217,7 +217,7 @@
 <script>
   const supabaseUrl = 'https://lbsukwbenkscbsvgwbpc.supabase.co';
   const supabaseKey = 'sb_publishable_ogDSyXb2UgqM2RI2quIdLg_sUgco89j';
-  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
   let allData = [];
   let filteredData = [];
@@ -232,7 +232,7 @@
     err.textContent = '';
     if (!email || !pwd) { err.textContent = 'Please enter email and password.'; return; }
 
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
       email: email,
       password: pwd,
     });
@@ -242,7 +242,7 @@
       return;
     }
 
-    const { data, error } = await supabase.from('registrations').select('*').order('registered_at', { ascending: false });
+    const { data, error } = await supabaseClient.from('registrations').select('*').order('registered_at', { ascending: false });
     
     if (error) {
       err.textContent = 'Error fetching data: ' + error.message;
@@ -257,7 +257,7 @@
   }
 
   async function logout() {
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     allData = [];
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('login-screen').style.display = 'flex';

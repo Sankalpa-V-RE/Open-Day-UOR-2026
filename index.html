@@ -1003,7 +1003,7 @@
 <script>
   const supabaseUrl = 'https://lbsukwbenkscbsvgwbpc.supabase.co';
   const supabaseKey = 'sb_publishable_ogDSyXb2UgqM2RI2quIdLg_sUgco89j';
-  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
   // ─── STATE ───
   let currentStep = 1;
@@ -1012,7 +1012,7 @@
   // ─── STATS ───
   async function fetchStats() {
     try {
-      const { count, error } = await supabase.from('registrations').select('*', { count: 'exact', head: true });
+      const { count, error } = await supabaseClient.from('registrations').select('*', { count: 'exact', head: true });
       if (error) throw error;
       document.getElementById('stat-registered').textContent = count > 0 ? count : '0';
     } catch {
@@ -1138,7 +1138,7 @@
     };
 
     try {
-      const { data, error } = await supabase.from('registrations').insert([{
+      const { data, error } = await supabaseClient.from('registrations').insert([{
         full_name: payload.full_name,
         mobile_number: payload.mobile_number,
         email: payload.email,
