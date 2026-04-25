@@ -1702,6 +1702,8 @@
     const supabaseKey = 'sb_publishable_ogDSyXb2UgqM2RI2quIdLg_sUgco89j';
     const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+    const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxJybvNfQ4668BiPBoXPlOMktDdjRaYQK8oBBaCyRgrWA4_v-hpAVnC4NIPYgEPdXSp/exec';
+
     // ─── STATE ───
     let currentStep = 1;
     let isParticipating = true;
@@ -1801,6 +1803,26 @@
       document.getElementById('rv-guardian').textContent = isParticipating && document.getElementById('guardian').value ? document.getElementById('guardian').value : 'None / N/A';
     }
 
+    // ─── GOOGLE SHEETS SYNC ───
+    async function sendToGoogleSheets(payload) {
+      try {
+        // We use mode: 'no-cors' because Apps Script doesn't support CORS preflight well.
+        // The data will still be sent, but we won't be able to read the response.
+        await fetch(GOOGLE_SHEETS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          cache: 'no-cache',
+          headers: {
+            'Content-Type': 'text/plain'
+          },
+          body: JSON.stringify(payload)
+        });
+        console.log('Google Sheets sync triggered');
+      } catch (err) {
+        console.error('Google Sheets sync failed:', err);
+      }
+    }
+
     // ─── SUBMIT ───
     async function submitForm() {
       const btn = document.getElementById('submit-btn');
@@ -1844,11 +1866,26 @@
           btn.disabled = false;
           document.getElementById('submit-text').textContent = ' Submit Registration';
         } else if (data && data.length > 0) {
+          const record = data[0];
+          
+          // Send to Google Sheets (Fire and forget, don't block success screen)
+          sendToGoogleSheets({
+            full_name: record.full_name,
+            school_name: record.school_name,
+            district: record.district,
+            district_rank: record.district_rank,
+            email: record.email,
+            mobile_number: record.mobile_number,
+            participating: record.participating === 1,
+            guardian: record.guardian,
+            id: record.id
+          });
+
           document.getElementById('form-body').style.display = 'none';
           document.querySelector('.form-progress').style.display = 'none';
-          document.getElementById('success-id-val').textContent = data[0].id;
+          document.getElementById('success-id-val').textContent = record.id;
           document.getElementById('success-screen').classList.add('show');
-          fetchStats();
+          if (typeof fetchStats === 'function') fetchStats();
         }
       } catch {
         errDiv.textContent = 'Network error. Please check your connection and try again.';
