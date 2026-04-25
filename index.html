@@ -1333,10 +1333,6 @@
       </div>
       <div class="hero-stats">
         <div class="stat-item">
-          <span class="stat-num" id="stat-registered">—</span>
-          <span class="stat-label" style="color: rgba(255,255,255,0.7);">Registered</span>
-        </div>
-        <div class="stat-item">
           <span class="stat-num">6</span>
           <span class="stat-label" style="color: rgba(255,255,255,0.7);">Departments</span>
         </div>
@@ -1709,18 +1705,6 @@
     // ─── STATE ───
     let currentStep = 1;
     let isParticipating = true;
-
-    // ─── STATS ───
-    async function fetchStats() {
-      try {
-        const { count, error } = await supabaseClient.from('registrations').select('*', { count: 'exact', head: true });
-        if (error) throw error;
-        document.getElementById('stat-registered').textContent = count > 0 ? count : '0';
-      } catch {
-        document.getElementById('stat-registered').textContent = '0';
-      }
-    }
-    fetchStats();
 
     // ─── ATTENDANCE ───
     function setParticipating(val) {
